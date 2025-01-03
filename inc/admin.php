@@ -22,15 +22,6 @@
 		</tr>
 
 		<tr>
-		<th scope="row"><?php _e('Enable','wpartplayer'); ?> flv.js</th>
-		<td> <fieldset><legend class="screen-reader-text"></legend>
-			<label for="enable_flv">
-				<input name="enable_flv" type="checkbox" id="enable_flv" value="1" <?php if(isset( $artdplayer['enable_flv']) && $artdplayer['enable_flv']==1)echo 'checked'; ?>>
-			 <?php _e('Support FLV format','wpartplayer'); ?></label>
-		</fieldset></td>
-		</tr>
-
-		<tr>
 		<th scope="row"><?php _e('Live mode','wpartplayer'); ?></th>
 		<td> <fieldset><legend class="screen-reader-text"></legend>
 			<label for="isLive">
@@ -74,14 +65,14 @@
 		</fieldset></td>
 		</tr>
 
-		<tr>
-		<th scope="row"><?php _e('Autoplay','wpartplayer'); ?></th>
-		<td> <fieldset><legend class="screen-reader-text"></legend>
-			<label for="autoplay">
-				<input name="autoplay" type="checkbox" id="autoplay" value="1" <?php if(isset( $artdplayer['autoplay']) && $artdplayer['autoplay']==1)echo 'checked'; ?>>
-			 <?php _e('Video autoplay when enabled','wpartplayer'); ?></label>
-		</fieldset></td>
-		</tr>
+        <tr>
+        <th scope="row"><?php _e('Autoplay','wpartplayer'); ?></th>
+        <td> <fieldset><legend class="screen-reader-text"></legend>
+            <label for="autoplayone">
+                <input name="autoplayone" type="checkbox" id="autoplayone" value="1" <?php if(isset( $artdplayer['autoplayone']) && $artdplayer['autoplayone']==1)echo 'checked'; ?>>
+             <?php _e('Video autoplay when enabled','wpartplayer'); ?></label>
+        </fieldset></td>
+        </tr>
 
 		<tr>
 		<th scope="row"><?php _e('Loop Play','wpartplayer'); ?></th>
@@ -189,11 +180,7 @@
 			<select name="lang" id="lang">
 				<option value="1" selected="selected"><?php _e('Automatic language selection','wpartplayer'); ?></option>
 				<option value="zh-cn"><?php _e('Simplified Chinese','wpartplayer'); ?></option>
-				<option value="zh-tw"><?php _e('Traditional Chinese(Taiwan Region)','wpartplayer'); ?></option>
 				<option value="en"><?php _e('English','wpartplayer'); ?></option>
-				<option value="cs"><?php _e('Czech','wpartplayer'); ?></option>
-				<option value="pl"><?php _e('Polish','wpartplayer'); ?></option>
-				<option value="es"><?php _e('Spanish','wpartplayer'); ?></option>
 			</select>
 		</fieldset></td>
 		</tr>

@@ -1,16 +1,18 @@
 <?php
 /**
- * Plugin Name:  Artplayer for wordpress
- * Plugin URI:   https://discuss.miued.com/
- * Description:  Artplayer是一款易于使用且功能丰富的 HTML5 视频播放器，支持弹幕，播放器的大部分功能控件都支持自定义。
- * Author:       蓝色早晨
- * Author URI:   https://discuss.miued.com/
- * Version:      1.1
- * Text Domain:  wp-crontrol
- * Domain Path:  /languages/
- * Requires PHP: 7.0
- * License:      GPL v2 or later
+ * Plugin Name: Art HTML5播放器
+ * Plugin URI: https://www.jingxialai.com/4950.html
+ * Description: 基于Artplayer的播放器支持mp4和m3u8格式视频，支持弹幕，播放器的大部分功能控件都支持自定义。
+ * Author: Summer
+ * Author URI: https://www.jingxialai.com/
+ * Version: 1.2
+ * Text Domain: wp-crontrol
+ * Domain Path: /languages/
+ * Requires PHP: 8.0
+ * License: GPL v2 or later
  *
+ * 原版：https://github.com/oyjcmyn/wp-artplayer
+ * 
  * LICENSE
  * This file is part of WP Crontrol.
  *
@@ -37,7 +39,7 @@ if(file_exists($file)){
   include $file;//载入配置
 }
 require_once WP_ARTDPLAYER_INC_PATH . 'main.php';
-require_once WP_ARTDPLAYER_INC_PATH . 'admin_menus.php';\
+require_once WP_ARTDPLAYER_INC_PATH . 'admin_menus.php';
 
 register_activation_hook( __FILE__, array( 'ART_MAIN_MI', 'install' ) );
 
@@ -73,11 +75,3 @@ function add_settings_link( $links, $file ) {
 
     return $links;
   }
-
-
-
-
-
-
-
-
