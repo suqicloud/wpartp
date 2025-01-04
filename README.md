@@ -26,7 +26,10 @@
 其他代码都没有改了，有的后台功能看都没看，也没测试。  
 
 现在的短代码： 
-[artplayer url=""]
+[artplayer url="https://视频.mp4"]  
+[artplayer url="https://视频.m3u8"]  
+[artplayer url="https://www.bilibili.com/video/BVxxx"]  
+b站的3种网址都支持和另外2个播放器插件一样。
 
 Artplayer播放器源码 [https://github.com/zhw2590582/ArtPlayer](https://github.com/zhw2590582/ArtPlayer)
 
