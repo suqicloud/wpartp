@@ -1,24 +1,29 @@
 <?php
-    $artdplayerjson = get_option('artdplayerjson');
-    $artdplayer = json_decode($artdplayerjson, true);
-    $art = $artdplayer;
+// 获取视频相关信息和HTML生成
+$artdplayerjson = get_option('artdplayerjson');
+$artdplayer = json_decode($artdplayerjson, true);
+$art = $artdplayer;
 
-    // 解析URL列表
-    $urls = explode(',', $atts['url']);
-    $videoCount = count($urls);  // 视频数量
-    $currentVideoIndex = isset($_GET['video_index']) ? intval($_GET['video_index']) : 0;
-    $currentVideoUrl = esc_url(trim($urls[$currentVideoIndex]));  // 默认选择第一个视频
+// 解析URL列表
+$urls = explode(',', $atts['url']);
+$videoCount = count($urls);  // 视频数量
+$currentVideoIndex = isset($_GET['video_index']) ? intval($_GET['video_index']) : 0;
+$currentVideoUrl = esc_url(trim($urls[$currentVideoIndex]));  // 默认选择第一个视频
 ?>
 
 <div id="artplayer<?php echo $atts['_id']; ?>" class="artplayerbox" style="width:<?php echo $atts['width']; ?>;height:<?php echo $atts['height']; ?>">
     <div class="video-buttons-container">
+        <!-- 集数按钮 -->
         <?php echo $buttonsHtml; ?>
     </div>
 </div>
 
-<!-- 集数按钮 -->
+<!-- 集数按钮和播放下一集按钮 -->
 <?php if ($videoCount > 1) : ?>
     <div class="episode-buttons">
+        <!-- 播放下一集按钮 -->
+        <button class="next-video-button">播放下一集</button>
+        <!-- 集数按钮 -->
         <?php foreach ($urls as $index => $url) : ?>
             <button type="button" class="video-button" data-video-url="<?php echo esc_url(trim($url)); ?>" data-video-index="<?php echo $index; ?>">
                 第<?php echo $index + 1; ?>集
@@ -29,6 +34,9 @@
 
 <script type="text/javascript">
     var art = null;  // 定义播放器实例
+    var currentVideoIndex = <?php echo $currentVideoIndex; ?>;  // 当前视频索引
+    var videoCount = <?php echo $videoCount; ?>;  // 视频总数
+    var urls = <?php echo json_encode($urls); ?>;  // 视频URL列表
 
     // 初始化播放器
     function initializePlayer(videoUrl, autoplay = false) {
@@ -80,63 +88,42 @@
                     }
                 }
             },
-            plugins: [
-                <?php if(isset($art['danmuku']) && !empty($art['danmuku'])){ ?>
-                    artplayerPluginDanmuku({
-                        danmuku: function () {
-                            return new Promise((resolve) => {
-                                var httpRequest = new XMLHttpRequest();
-                                var gourl='<?php echo admin_url('admin-ajax.php?vid='.$atts['_id']); ?>&action=get_artdanmuku';
-                                httpRequest.open('GET', gourl, true);
-                                httpRequest.send();
-                                httpRequest.onreadystatechange = function () {
-                                    if (httpRequest.readyState == 4 && httpRequest.status == 200) {
-                                        var json = httpRequest.responseText;
-                                        return resolve(JSON.parse(json).result)
-                                    }
-                                };
-                            });
-                        },
-                        speed: 8, 
-                        opacity: 1, 
-                        fontSize: 25, 
-                        color: '#FFFFFF', 
-                        mode: 0, 
-                        margin: [10, '25%'], 
-                        antiOverlap: true, 
-                        useWorker: true, 
-                        synchronousPlayback: false, 
-                        filter: (danmu) => danmu.text.length < 50, 
-                        lockTime: 5, 
-                        maxLength: 100, 
-                        minWidth: 200, 
-                        maxWidth: 0, 
-                        theme: 'dark', 
-                        beforeEmit: (danmu) => !!danmu.text.trim(),
-                    }),
-                <?php } ?>
-            ],
+
         });
+
     }
 
+
     // 初始化播放器时传入默认的视频URL，不自动播放
-    initializePlayer("<?php echo $currentVideoUrl; ?>");
+    initializePlayer(urls[currentVideoIndex]);
 
     // 集数按钮点击事件
     jQuery('.video-button').on('click', function () {
-        var videoUrl = jQuery(this).data('video-url');
-        
+        var videoIndex = jQuery(this).data('video-index');
+        var videoUrl = urls[videoIndex];
+
         // 销毁并重新初始化播放器，传入autoplay参数为true
         initializePlayer(videoUrl, true);  // 切换集数时自动播放
 
         // 更新按钮样式（高亮当前集）
         jQuery('.video-button').removeClass('active');
         jQuery(this).addClass('active');
-        
-        // 保持网址不变
-        history.pushState(null, null, window.location.pathname); // 清除查询字符串（不改变URL）
+
+        // 更新当前视频索引
+        currentVideoIndex = videoIndex;
+    });
+
+    // 播放下一集按钮点击事件
+    jQuery('.next-video-button').on('click', function () {
+        // 如果当前是最后一集，什么也不做
+        if (currentVideoIndex < videoCount - 1) {
+            currentVideoIndex++;
+            var nextVideoUrl = urls[currentVideoIndex];
+            initializePlayer(nextVideoUrl, true);  // 自动播放下一集
+        }
     });
 </script>
+
 
 <style>
     /* 集数按钮的基本样式 */
@@ -170,4 +157,26 @@
         justify-content: center;
         margin-top: 15px;
     }
+
+    /* 播放下一集按钮 */
+    .next-video-button {
+        background-color: #2a59f1;
+        color: #fff;
+        padding: 10px 20px;
+        margin: 5px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .next-video-button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    .next-video-button:active {
+        transform: scale(0.98);
+    }   
 </style>

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Art HTML5播放器
  * Plugin URI: https://www.jingxialai.com/4950.html
- * Description: 基于Artplayer的播放器支持mp4和m3u8格式视频，支持弹幕，播放器的大部分功能控件都支持自定义。
+ * Description: 基于Artplayer的播放器支持mp4和m3u8格式视频，播放器的大部分功能控件支持自定义。
  * Author: Summer
  * Author URI: https://www.jingxialai.com/
  * Version: 1.2
@@ -29,7 +29,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WP_ARTDPLAYER_VERSION', '1.1' );
+define( 'WP_ARTDPLAYER_VERSION', '1.2' );
 define( 'WP_ARTDPLAYER_PATH', realpath( plugin_dir_path( __FILE__ ) ) . '/' );
 define( 'WP_ARTDPLAYER_INC_PATH', realpath( WP_ARTDPLAYER_PATH . 'inc/' ) . '/' );
 define( 'WP_ARTDPLAYER_URL', plugin_dir_url( __FILE__ ) );
@@ -39,7 +39,6 @@ if(file_exists($file)){
   include $file;//载入配置
 }
 require_once WP_ARTDPLAYER_INC_PATH . 'main.php';
-require_once WP_ARTDPLAYER_INC_PATH . 'admin_menus.php';
 
 register_activation_hook( __FILE__, array( 'ART_MAIN_MI', 'install' ) );
 
@@ -65,13 +64,22 @@ function artplayer_load_textdomain() {
         }
 }
 
-add_filter( 'plugin_action_links', 'add_settings_link', 10, 2 );
-function add_settings_link( $links, $file ) {
-    if ( $file === 'wp-artplayer/wp-artplayer.php' && current_user_can( 'manage_options' ) ) {
-      $url = admin_url( 'admin.php?page=artplayerset' );
-      $links = (array) $links;
-      $links[] = sprintf( '<a href="%s">%s</a>', $url, __( 'Settings', 'classic-editor' ) );
-    }
-
+// 在插件中心添加设置链接
+function artplayer_add_settings_link($links) {
+    $settings_link = '<a href="admin.php?page=artplayerset">设置</a>';
+    array_push($links, $settings_link);
     return $links;
-  }
+}
+add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'artplayer_add_settings_link');
+
+
+// 菜单入口
+function artplayer_menu(){
+    add_menu_page('artplayer','Art播放器', 'manage_options', 'artplayerset' ,'artplayerset', 'dashicons-format-video', 80);
+    
+}
+add_action("admin_menu","artplayer_menu");
+
+function artplayerset(){
+    include WP_ARTDPLAYER_INC_PATH . 'admin.php';
+}   
