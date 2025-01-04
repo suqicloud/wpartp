@@ -25,7 +25,7 @@
 
 其他代码都没有改了，有的后台功能看都没看，也没测试。  
 
-简码： 
+现在的短代码： 
 [artplayer url=""]
 
 Artplayer播放器源码 [https://github.com/zhw2590582/ArtPlayer](https://github.com/zhw2590582/ArtPlayer)
