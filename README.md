@@ -3,6 +3,8 @@
 这款插件来源https://github.com/oyjcmyn/wp-artplayer  
 前几天给自己播放器插件更新的时候，想起了artplayer播放器，然后看看WordPress有没有artplayer播放器的插件，就看见了这个项目。  
 但是原作者几年没有更新了，看了他社区，也有人说无法安装，我就下载下来看了下，顺便也改了点。  
+快速简码按钮不支持Gutenberg（古腾堡）编辑器，因为他不是用的编辑器工具栏里面加入快捷键。  
+
 
 我重新命名为：wpartp（Art HTML5播放器）  
 
@@ -23,6 +25,8 @@
 
 其他代码都没有改了，有的后台功能看都没看，也没测试。  
 
+简码： 
+[artplayer url=""]
 
 Artplayer播放器源码 [https://github.com/zhw2590582/ArtPlayer](https://github.com/zhw2590582/ArtPlayer)
 
