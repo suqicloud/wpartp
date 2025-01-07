@@ -40,7 +40,6 @@ if(file_exists($file)){
 }
 require_once WP_ARTDPLAYER_INC_PATH . 'main.php';
 
-register_activation_hook( __FILE__, array( 'ART_MAIN_MI', 'install' ) );
 
 add_action( 'plugins_loaded', 'artplayer_load_textdomain');
 function artplayer_load_textdomain() {
