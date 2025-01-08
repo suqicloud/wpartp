@@ -31,7 +31,7 @@
 
 其他代码都没有改了，有的原版后台功能我都没测试。  
 
-现在的短代码： 
+现在的短代码：  
 [artplayer url="https://视频.mp4"]  
 [artplayer url="https://视频.m3u8"]  
 [artplayer url="https://www.bilibili.com/video/BVxxx"]  
