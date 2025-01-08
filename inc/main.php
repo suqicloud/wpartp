@@ -2,101 +2,42 @@
 /**
  * 
  * @authors Your Name (you@example.org)
- * @date    2025-01-05 18:17:51
+ * @date    2025-01-08 18:17:51
  * @version $Id$
  */
 
 class ART_MAIN_MI{
 
-    public static function save_options(){
-
-        if (wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mi_artplayer_save_field'] ) ), 'mi_artplayer_save_action' )) {
-                $data=$_POST;
-                unset($data['mi_artplayer_save_field'],$data['_wp_http_referer']);
-                update_option('artdplayerjson',json_encode($data,JSON_UNESCAPED_UNICODE));
+public static function save_options() {
+    if (wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mi_artplayer_save_field'])), 'mi_artplayer_save_action')) {
+        $data = $_POST;
+        unset($data['mi_artplayer_save_field'], $data['_wp_http_referer']);
+        
+        // 处理广告设置，保存到数据库
+        if (isset($data['enable_ads'])) {
+            $data['enable_ads'] = 1;
+        } else {
+            $data['enable_ads'] = 0;
         }
+
+        // 处理HTML广告内容，确保不被过滤
+        if (isset($data['ad_html'])) {
+            $data['ad_html'] = wp_kses_post($data['ad_html']); // 允许部分HTML标签
+        }
+
+        update_option('artdplayerjson', json_encode($data, JSON_UNESCAPED_UNICODE));
     }
 }
 
+}
 
 
 class Artplayer_Admin_Media{
 
     static $add_script;
     public function __construct() {
-        add_action( 'media_buttons', array( $this, 'media_buttons' ), 20 );
         add_shortcode( 'artplayer', array( $this, 'artplayer_shortcode' ));
         add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_script' ) );
-
-    }
-
-    public function media_buttons($editor_id = 'content')
-    {
-    global $post;
-    ?>
-    <a href="#TB_inline?width=auto&height=auto&inlineId=add_artplaybox" class="button thickbox" title="<?php _e('Add Artplayer player', 'wpartplayer');?>"><?php _e('Add Artplayer player', 'wpartplayer');?></a>
-    <div id="add_artplaybox" style="display:none;">
-        <form id="insert-artplayer-shortcode" method="post">
-            <table class="form-table">
-                <tbody>
-                    <tr>
-                        <th scope="row"><label for="url"><?php _e('Video URL', 'wpartplayer');?></label></th>
-                        <td>
-                            <textarea name="url" id="artmi_url" rows="5" class="regular-text" placeholder="<?php _e('如果要添加多个视频，一行一个', 'wpartplayer');?>"></textarea>
-                            <a class="button addsurl"><?php _e('Media Library', 'wpartplayer');?></a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <a class="button button-primary button-large incsbtn"><?php _e('Insert Player Shortcode', 'wpartplayer');?></a>
-        </form>
-        <script>
-        var currentUrl = ''; // 存储当前视频URL
-
-        jQuery(function ($) {
-            var win = window.dialogArguments || opener || parent || top;
-
-            // 更新时更新全局变量currentUrl
-            $('#artmi_url').on('change', function () {
-                currentUrl = $(this).val();
-            });
-
-            jQuery('body.wp-admin').off('click', '.incsbtn').on('click', '.incsbtn', function (event) {
-                var urls = currentUrl.split('\n').map(url => url.trim()).join(',');
-                var shortcode = '[artplayer url="' + urls + '"]'; // 将多个URL作为一个简码插入
-
-                win.send_to_editor(shortcode);
-            });
-
-            var ashu_upload_frame;
-            var value_id;
-            var thisa;
-            jQuery('body.wp-admin').on('click', '.addsurl', function (event) {
-                thisa = jQuery(this);
-                event.preventDefault();
-                if (ashu_upload_frame) {
-                    ashu_upload_frame.open();
-                    return;
-                }
-                ashu_upload_frame = wp.media({
-                    title: '<?php _e('Add video', 'wpartplayer');?>',
-                    button: {
-                        text: '<?php _e('Add video', 'wpartplayer');?>',
-                    },
-                });
-
-                ashu_upload_frame.on('select', function () {
-                    attachment = ashu_upload_frame.state().get('selection').first().toJSON();
-                    currentUrl = attachment.url;
-                    $('#artmi_url').val(currentUrl).trigger('change');
-                });
-
-                ashu_upload_frame.open();
-            });
-        });
-        </script>
-    </div>
-    <?php
     }
 
 
@@ -106,6 +47,7 @@ class Artplayer_Admin_Media{
     $atts = shortcode_atts(array(
         '_id' => get_the_ID(),
         'url' => '',
+        'poster' => '',
         'width' => '100%',  // 默认宽度
         'height' => '500px',  // 默认高度
     ), $atts);
@@ -161,10 +103,16 @@ class Artplayer_Admin_Media{
                 return;
             }
             $artdplayer=json_decode($artdplayerjson,true);
+            
             if((isset($artdplayer['enable_hls']) && $artdplayer['enable_hls']==1) || (isset($artdplayer['isLive']) && $artdplayer['isLive']==1)){ 
                 wp_enqueue_script( 'arthls', WP_ARTDPLAYER_URL.'/assets/js/hls.min.js', false, false, false);
             }
             wp_enqueue_script( 'artplayer', WP_ARTDPLAYER_URL.'/assets/js/artplayer.js', false, false, false);
+
+            // 加载广告插件
+            if (isset($artdplayer['enable_ads']) && $artdplayer['enable_ads'] == 1) {
+                wp_enqueue_script('artplayer-plugin-ads', WP_ARTDPLAYER_URL . '/assets/js/artplayer-plugin-ads.js', false, false, false);
+            }
 
             self::$add_script = true;
         } 

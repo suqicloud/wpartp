@@ -9,9 +9,39 @@ $urls = explode(',', $atts['url']);
 $videoCount = count($urls);  // 视频数量
 $currentVideoIndex = isset($_GET['video_index']) ? intval($_GET['video_index']) : 0;
 $currentVideoUrl = esc_url(trim($urls[$currentVideoIndex]));  // 默认选择第一个视频
+$poster = isset($atts['poster']) ? esc_url($atts['poster']) : '';  // 获取封面图地址
+
+// 获取广告设置
+$artdplayerjson = get_option('artdplayerjson');
+$artdplayer = json_decode($artdplayerjson, true);
+
+// 读取广告设置
+$enableAds = isset($artdplayer['enable_ads']) && $artdplayer['enable_ads'] == 1;
+$adHtml = isset($artdplayer['ad_html']) ? $artdplayer['ad_html'] : '';
+$adVideo = isset($artdplayer['ad_video']) ? $artdplayer['ad_video'] : '';
+$adUrl = isset($artdplayer['ad_url']) ? $artdplayer['ad_url'] : '';
+$adPlayDuration = isset($artdplayer['ad_play_duration']) ? intval($artdplayer['ad_play_duration']) : 5;
+$adTotalDuration = isset($artdplayer['ad_total_duration']) ? intval($artdplayer['ad_total_duration']) : 10;
+
 ?>
 
 <div id="artplayer<?php echo $atts['_id']; ?>" class="artplayerbox" style="width:<?php echo $atts['width']; ?>;height:<?php echo $atts['height']; ?>">
+        <!-- 广告展示 -->
+    <?php if ($enableAds) : ?>
+        <div class="artplayer-ads">
+            <?php if (!empty($adVideo)) : ?>
+                <video id="ad-video" class="ad-video" autoplay>
+                    <source src="<?php echo esc_url($adVideo); ?>" type="video/mp4">
+                    你的浏览器不支持视频标签。
+                </video>
+            <?php elseif (!empty($adHtml)) : ?>
+                <div class="ad-html">
+                    <?php echo $adHtml; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
     <div class="video-buttons-container">
         <!-- 集数按钮 -->
         <?php echo $buttonsHtml; ?>
@@ -37,6 +67,7 @@ $currentVideoUrl = esc_url(trim($urls[$currentVideoIndex]));  // 默认选择第
     var currentVideoIndex = <?php echo $currentVideoIndex; ?>;  // 当前视频索引
     var videoCount = <?php echo $videoCount; ?>;  // 视频总数
     var urls = <?php echo json_encode($urls); ?>;  // 视频URL列表
+    var poster = "<?php echo $poster; ?>";  // 获取封面图地址
 
     // 初始化播放器
     function initializePlayer(videoUrl, autoplay = false) {
@@ -49,9 +80,9 @@ $currentVideoUrl = esc_url(trim($urls[$currentVideoIndex]));  // 默认选择第
             id: "art<?php echo $atts['_id']; ?>",
             container: "#artplayer<?php echo $atts['_id']; ?>",
             url: videoUrl,  // 传递的当前视频URL
+            poster: poster,  // 传递封面图地址
             theme: '<?php echo $artdplayer['theme']; ?>',
             autoplay: autoplay,  // 切换视频时是否自动播放
-            <?php if(isset($art['poster']) && !empty($art['poster'])){ echo 'poster:"'.$art['poster'].'",'; } ?>
             <?php if(isset($art['volume']) && !empty($art['volume'])){ echo 'volume:'.$art['volume'].','; } ?>
             <?php if(isset($art['muted']) && !empty($art['muted'])){ echo 'muted:true,'; } ?>
             <?php if(isset($art['autoplayone']) && !empty($art['autoplayone'])){ echo 'autoplay:true,'; } ?>
@@ -60,18 +91,30 @@ $currentVideoUrl = esc_url(trim($urls[$currentVideoIndex]));  // 默认选择第
             <?php if(isset($art['playbackRate']) && !empty($art['playbackRate'])){ echo 'playbackRate:true,'; } ?>
             <?php if(isset($art['screenshot']) && !empty($art['screenshot'])){ echo 'screenshot:true,'; } ?>
             <?php if(isset($art['pip']) && !empty($art['pip'])){ echo 'pip:true,'; } ?>
+            <?php if(isset($art['fullscreenWeb']) && !empty($art['fullscreenWeb'])){ echo 'fullscreenWeb:true,'; } ?>
+            <?php if(isset($art['flip']) && !empty($art['flip'])){ echo 'flip:true,'; } ?>
             <?php if(isset($art['miniProgressBar']) && !empty($art['miniProgressBar'])){ echo 'miniProgressBar:true,'; } ?>
             <?php if(isset($art['lock']) && !empty($art['lock'])){ echo 'lock:true,'; } ?>
             <?php if(isset($art['fastForward']) && !empty($art['fastForward'])){ echo 'fastForward:true,'; } ?>
             <?php if(isset($art['autoPlayback']) && !empty($art['autoPlayback'])){ echo 'autoPlayback:true,'; } ?>
             <?php if(isset($art['autoOrientation']) && !empty($art['autoOrientation'])){ echo 'autoOrientation:true,'; } ?>
             <?php if(isset($art['airplay']) && !empty($art['airplay'])){ echo 'airplay:true,'; } ?>
+            plugins: [
+            <?php if ($enableAds) : ?>
+                artplayerPluginAds({
+                    html: '<?php echo addslashes($adHtml); ?>',
+                    video: '<?php echo esc_url($adVideo); ?>',
+                    url: '<?php echo esc_url($adUrl); ?>',
+                    playDuration: <?php echo $adPlayDuration; ?>,
+                    totalDuration: <?php echo $adTotalDuration; ?>,
+                }),
+            <?php endif; ?>
+            ],
             hotkey: true,
-            fullscreenWeb: true,
             fullscreen: true,
             setting: true,
             whitelist: ['*'],
-            lang: <?php if(isset($art['lang']) && $art['lang']!=1){ echo '"'.$art['lang'].'"'; }else{echo 'navigator.language.toLowerCase()';} ?>,
+            lang: 'zh-cn',
             customType: {
                 m3u8: function (video, url) {
                     if (Hls.isSupported()) {
@@ -123,7 +166,6 @@ $currentVideoUrl = esc_url(trim($urls[$currentVideoIndex]));  // 默认选择第
         }
     });
 </script>
-
 
 <style>
     /* 集数按钮的基本样式 */

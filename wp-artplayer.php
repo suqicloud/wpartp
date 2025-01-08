@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: Art HTML5播放器
+ * Plugin Name: Artplayer HTML5播放器
  * Plugin URI: https://www.jingxialai.com/4950.html
- * Description: 基于Artplayer的播放器支持mp4和m3u8格式视频，播放器的大部分功能控件支持自定义。
+ * Description: 基于Artplayer的播放器支持mp4和m3u8格式视频，可以设置广告，播放器的大部分功能控件支持自定义。
  * Author: Summer
  * Author URI: https://www.jingxialai.com/
- * Version: 1.2
+ * Version: 1.3
  * Text Domain: wp-crontrol
  * Domain Path: /languages/
  * Requires PHP: 8.0
@@ -29,7 +29,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WP_ARTDPLAYER_VERSION', '1.2' );
+define( 'WP_ARTDPLAYER_VERSION', '1.3' );
 define( 'WP_ARTDPLAYER_PATH', realpath( plugin_dir_path( __FILE__ ) ) . '/' );
 define( 'WP_ARTDPLAYER_INC_PATH', realpath( WP_ARTDPLAYER_PATH . 'inc/' ) . '/' );
 define( 'WP_ARTDPLAYER_URL', plugin_dir_url( __FILE__ ) );
@@ -39,29 +39,6 @@ if(file_exists($file)){
   include $file;//载入配置
 }
 require_once WP_ARTDPLAYER_INC_PATH . 'main.php';
-
-
-add_action( 'plugins_loaded', 'artplayer_load_textdomain');
-function artplayer_load_textdomain() {
-        // prefix
-        $prefix = basename( dirname( plugin_basename( __FILE__ ) ) );
-        $locale = get_locale();
-        $dir    = WP_ARTDPLAYER_PATH.'/languages';
-        $mofile = false;
-
-        $globalFile = WP_LANG_DIR . '/plugins/' . $prefix . '-' . $locale . '.mo';
-        $pluginFile = $dir . '/artplayer-'. $locale . '.mo';
-
-        if ( file_exists( $globalFile ) ) {
-            $mofile = $globalFile;
-        } else if ( file_exists( $pluginFile ) ) {
-            $mofile = $pluginFile;
-        }
-
-        if ( $mofile ) {
-            load_textdomain( 'wpartplayer', $mofile );
-        }
-}
 
 // 在插件中心添加设置链接
 function artplayer_add_settings_link($links) {
@@ -81,4 +58,31 @@ add_action("admin_menu","artplayer_menu");
 
 function artplayerset(){
     include WP_ARTDPLAYER_INC_PATH . 'admin.php';
-}   
+} 
+
+// 经典编辑器快捷键
+function wp_artplayer_register_tinymce_plugin($plugin_array) {
+    $plugin_array['wp_artplayer_button'] = plugin_dir_url(__FILE__) . '/assets/js/artplayer-tinymce.js';
+    return $plugin_array;
+}
+
+function wp_artplayer_add_tinymce_button($buttons) {
+    array_push($buttons, 'wp_artplayer_button');
+    return $buttons;
+}
+
+function wp_artplayer_add_tinymce_plugin() {
+    if (!current_user_can('edit_posts') && !current_user_can('edit_pages')) {
+        return;
+    }
+
+    if (get_user_option('rich_editing') !== 'true') {
+        return;
+    }
+
+    add_filter('mce_external_plugins', 'wp_artplayer_register_tinymce_plugin');
+    add_filter('mce_buttons', 'wp_artplayer_add_tinymce_button');
+}
+
+add_action('init', 'wp_artplayer_add_tinymce_plugin');
+// 经典编辑器快捷键结束
