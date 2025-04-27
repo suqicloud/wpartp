@@ -37,7 +37,6 @@
 [artplayer url="https://www.bilibili.com/video/BVxxx"]  
 b站的3种网址都支持和另外2个播放器插件一样。
 
-社区反馈：https://iticu.icu/forum
 
 
 Artplayer播放器源码 [https://github.com/zhw2590582/ArtPlayer](https://github.com/zhw2590582/ArtPlayer)
